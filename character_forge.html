@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#111322">
+<title>Character Forge — キャラクター生成</title>
+<style>
+:root{color-scheme:dark;--bg:#0e1020;--panel:#171a2d;--panel2:#20243b;--line:#303653;--text:#f4f5ff;--muted:#a5abc5;--accent:#9b83ff;--accent2:#6e9cff;--good:#76d8b1;--danger:#ff8e9b}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 20% -10%,#28234c 0,transparent 42%),var(--bg);color:var(--text);font:15px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif}
+button,input,textarea,select{font:inherit}button{cursor:pointer;border:1px solid var(--line);border-radius:12px;padding:10px 14px;background:var(--panel2);color:var(--text);font-weight:650}button:hover{border-color:var(--accent)}button.primary{background:linear-gradient(120deg,#765de0,#4e78d9);border:0}button.ghost{background:transparent}button.danger{color:#ffb4bd}
+.wrap{max-width:1180px;margin:auto;padding:24px 18px 60px}.top{display:flex;justify-content:space-between;align-items:center;gap:14px;margin-bottom:26px}.brand{display:flex;gap:12px;align-items:center}.logo{width:42px;height:42px;border-radius:14px;background:linear-gradient(135deg,#9b83ff,#5c9dff);display:grid;place-items:center;font-size:22px;font-weight:900}.brand h1{font-size:18px;margin:0}.brand p{font-size:12px;color:var(--muted);margin:1px 0 0}.top-actions{display:flex;gap:8px;flex-wrap:wrap}
+.hero{padding:28px;border:1px solid #3b3a62;border-radius:22px;background:linear-gradient(125deg,#201e3b,#171c32 65%,#17253a);margin-bottom:20px}.eyebrow{color:#c2b6ff;text-transform:uppercase;letter-spacing:.13em;font-size:11px;font-weight:800}.hero h2{font-size:clamp(27px,5vw,42px);line-height:1.12;margin:8px 0}.hero p{color:var(--muted);max-width:700px;margin:8px 0 0}
+.layout{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:18px;align-items:start}.panel{background:rgba(23,26,45,.94);border:1px solid var(--line);border-radius:18px;padding:20px;min-width:0}.panel h3{font-size:17px;margin:0 0 5px}.sub{color:var(--muted);font-size:13px;margin:0 0 17px}.field{margin:14px 0}.field label{display:block;font-size:13px;font-weight:700;margin-bottom:7px}.hint{font-size:11px;color:var(--muted);margin-top:5px}textarea,input,select{width:100%;background:#101326;border:1px solid var(--line);color:var(--text);border-radius:11px;padding:11px 12px;outline:none}textarea:focus,input:focus,select:focus{border-color:var(--accent)}textarea{min-height:108px;resize:vertical}.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}.actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:16px}.section-head{display:flex;justify-content:space-between;gap:10px;align-items:center;margin:22px 0 10px}.section-head h4{margin:0;font-size:14px}.tag{font-size:11px;color:#d2caff;background:#302b50;border:1px solid #51457f;padding:3px 8px;border-radius:999px}
+.result-empty{border:1px dashed #424967;border-radius:14px;padding:28px;text-align:center;color:var(--muted)}.result-empty b{display:block;color:var(--text);margin-bottom:5px}
+.profile-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}.profile-head h3{font-size:21px}.profile-head p{margin:3px 0;color:var(--muted);font-size:12px}.tabs{display:flex;gap:7px;overflow:auto;padding:4px 0 12px}.tab{white-space:nowrap;padding:7px 11px;font-size:12px}.tab.active{background:#38315f;border-color:#7865c6}.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.detail{background:#111528;border:1px solid #2a304b;border-radius:12px;padding:12px;min-width:0}.detail small{display:block;color:#aeb4d0;font-size:11px;margin-bottom:5px}.detail strong{font-size:13px;white-space:pre-wrap;overflow-wrap:anywhere;font-weight:600}.detail textarea{min-height:76px;font-size:13px}.detail input{font-size:13px}.detail.full{grid-column:1/-1}.detail .edit-controls{display:flex;gap:6px;margin-top:8px}.detail .edit-controls button{font-size:11px;padding:5px 8px}
+.saved-list{display:grid;gap:8px;margin-top:12px}.saved-item{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:10px;border:1px solid var(--line);border-radius:11px;background:#121629}.saved-item button{padding:6px 9px;font-size:11px}.saved-item strong{display:block;font-size:13px}.saved-item small{color:var(--muted);font-size:11px}
+.notice{color:var(--muted);font-size:11px;margin-top:12px}.status{font-size:12px;color:var(--good);min-height:20px}.hidden{display:none!important}.range-row{display:flex;align-items:center;gap:10px}.range-row input{padding:0}.range-row output{width:35px;text-align:right;color:#d5ccff;font-weight:700}
+@media(max-width:850px){.layout{grid-template-columns:1fr}.wrap{padding:17px 13px 42px}.hero{padding:22px}.top{align-items:flex-start}.top-actions button{font-size:12px;padding:8px 10px}}
+@media(max-width:480px){.two,.detail-grid{grid-template-columns:1fr}.detail.full{grid-column:auto}.top{flex-direction:column}.top-actions{width:100%}.top-actions button{flex:1}.panel{padding:15px}.hero h2{font-size:29px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="top">
+  <div class="brand"><div class="logo">✦</div><div><h1>CHARACTER FORGE</h1><p>キャラクター設定ジェネレーター</p></div></div>
+  <div class="top-actions">
+    <button class="ghost" id="newBtn">＋ 新規作成</button>
+    <button class="ghost" id="importBtn">JSON読込</button>
+    <button class="ghost" id="exportAllBtn">全件書き出し</button>
+    <input type="file" id="importFile" accept=".json,application/json" class="hidden">
+  </div>
+</header>
+<section class="hero">
+  <div class="eyebrow">Build a character from an idea</div>
+  <h2>想像を、詳細な人格へ。</h2>
+  <p>短い説明からプロフィール・性格・心理・口調・行動・背景を組み立てます。AI API不要。入力キーワードとテンプレートを使って端末内で生成します。</p>
+</section>
+
+<div class="layout">
+<section class="panel">
+  <h3>キャラクターを作成</h3>
+  <p class="sub">分かるところだけ入力すればOK。空欄はテンプレートが補います。</p>
+  <div class="field"><label for="idea">役柄・キャラクターの概要 *</label><textarea id="idea" placeholder="例：冷静な天才科学者。人付き合いが苦手だが、信頼した相手には優しい。"></textarea><div class="hint">自由文、職業、性格、関係性などを入力できます。</div></div>
+  <div class="two">
+    <div class="field"><label for="name">名前（任意）</label><input id="name" placeholder="未入力なら自動作成"></div>
+    <div class="field"><label for="age">年齢設定（任意）</label><input id="age" placeholder="例：24歳 / 不明"></div>
+  </div>
+  <div class="two">
+    <div class="field"><label for="gender">性別・性自認（任意）</label><input id="gender" placeholder="例：女性"></div>
+    <div class="field"><label for="world">世界観</label><select id="world"><option>入力内容から自動判断</option><option>現代・現実世界</option><option>ファンタジー</option><option>SF・近未来</option><option>歴史・時代物</option><option>学園</option><option>ホラー・ミステリー</option><option>その他・独自世界</option></select></div>
+  </div>
+  <div class="field"><label for="relation">ユーザーとの関係（任意）</label><input id="relation" placeholder="例：幼なじみ、師匠、ライバル、初対面"></div>
+  <div class="field"><label for="speech">口調・話し方の希望（任意）</label><input id="speech" placeholder="例：丁寧語、ぶっきらぼう、柔らかい口調"></div>
+  <div class="field"><label for="extra">追加条件・絶対に守りたい設定（任意）</label><textarea id="extra" placeholder="例：実は高所恐怖症。ユーザーにだけ弱みを見せる。"></textarea></div>
+  <div class="section-head"><h4>生成の細かさ</h4><span class="tag">テンプレート生成</span></div>
+  <div class="field"><label for="depth">設定の詳細度：<output id="depthOut">4</output> / 5</label><input id="depth" type="range" min="1" max="5" value="4"></div>
+  <div class="field"><label for="style">補完スタイル</label><select id="style"><option value="balanced">自然でバランス重視</option><option value="realistic">現実的・具体的</option><option value="dramatic">物語性・ドラマ重視</option><option value="fantasy">想像力・独創性重視</option></select></div>
+  <div class="actions"><button class="primary" id="generateBtn">✦ キャラクターを生成</button><button id="clearBtn">入力をクリア</button></div>
+  <p class="notice">※APIを使わないため、文章の深い意味理解や自由な推論には限界があります。入力キーワードとルールベースの補完で生成します。</p>
+  <div class="status" id="status" aria-live="polite"></div>
+</section>
+
+<section class="panel">
+  <div id="empty" class="result-empty"><b>キャラクターはまだありません</b>左側に概要を入力して「キャラクターを生成」を押してください。</div>
+  <div id="editor" class="hidden">
+    <div class="profile-head"><div><div class="eyebrow">Character profile</div><h3 id="profileName">キャラクター</h3><p id="profileMeta">プロフィール</p></div><span class="tag">編集中</span></div>
+    <div class="actions" style="margin:12px 0"><button class="primary" id="saveBtn">保存</button><button id="exportBtn">この人物をJSON出力</button><button id="markdownBtn">Markdown出力</button></div>
+    <div class="tabs" id="tabs"></div>
+    <div class="detail-grid" id="details"></div>
+    <div class="section-head"><h4>保存済みキャラクター</h4><span class="tag" id="savedCount">0件</span></div>
+    <div class="saved-list" id="savedList"></div>
+  </div>
+</section>
+</div>
+<footer class="notice" style="text-align:center;margin-top:25px">Character Forge · データはこのブラウザー内に保存されます。ブラウザーのデータ削除前にJSONを書き出してください。</footer>
+</div>
+<script>
+const $=id=>document.getElementById(id);
+const STORE='character-forge-v1';
+let current=null, activeTab='basic';
+const tabs={
+ basic:'基本', appearance:'外見', personality:'性格', psychology:'心理', emotion:'感情', speech:'会話', relationships:'人間関係', background:'過去・背景', behavior:'行動', roleplay:'演技設定'
+};
+const fields={
+ basic:[['name','名前'],['age','年齢'],['gender','性別'],['species','種族'],['occupation','職業・立場'],['world','世界観'],['location','居住地'],['firstImpression','第一印象']],
+ appearance:[['face','顔立ち'],['hair','髪型・髪色'],['eyes','目'],['build','体格'],['clothing','服装'],['accessories','装飾品'],['expressions','表情の特徴'],['atmosphere','全体的な雰囲気']],
+ personality:[['traits','基本性格'],['strengths','長所'],['weaknesses','短所'],['sociality','社交性'],['pride','自信・プライド'],['kindness','優しさ・冷たさ'],['honesty','素直さ・嘘への態度'],['likes','好きなもの・こと'],['dislikes','嫌いなもの・こと']],
+ psychology:[['thinking','思考パターン'],['values','価値観'],['judgment','判断基準'],['desires','欲求・願望'],['fears','恐怖・不安'],['complexes','コンプレックス'],['secrets','秘密'],['motivation','行動原理']],
+ emotion:[['joy','喜びの表現'],['anger','怒りの表現'],['sadness','悲しみの表現'],['fear','恐怖の表現'],['jealousy','嫉妬・独占欲'],['affection','愛情表現'],['change','感情の変化'],['stress','ストレス時の反応']],
+ speech:[['firstPerson','一人称'],['secondPerson','二人称'],['tone','口調'],['vocabulary','語彙・言葉遣い'],['pace','会話のテンポ'],['catchphrase','口癖'],['humor','冗談・皮肉'],['silence','沈黙・間の使い方']],
+ relationships:[['userRelation','ユーザーとの関係'],['family','家族'],['friends','友人'],['romance','恋愛関係'],['rivals','敵対・ライバル関係'],['trust','信頼の築き方'],['socialBehavior','相手による態度の違い']],
+ background:[['origin','生い立ち'],['familyHistory','家族構成・家庭環境'],['education','学歴・経験'],['pastEvents','過去の重要な出来事'],['successes','成功体験'],['failures','失敗体験'],['currentGoal','現在の目標']],
+ behavior:[['habits','日常の習慣'],['hobbies','趣味'],['skills','得意なこと'],['weakSkills','苦手なこと'],['whenHappy','喜んだとき'],['whenAngry','怒ったとき'],['whenSad','悲しいとき'],['emergency','緊急時の行動']],
+ roleplay:[['viewpoint','視点・人格の維持'],['description','動作・表情描写'],['innerVoice','心の声'],['format','返答形式'],['initiative','会話の主導権'],['storyPace','物語の進行速度'],['continuity','設定の一貫性'],['boundaries','表現上の配慮']]
+};
+const labels=Object.fromEntries(Object.values(fields).flat().map(([k,v])=>[k,v]));
+function readStore(){try{return JSON.parse(localStorage.getItem(STORE)||'[]')}catch{return []}}
+function writeStore(list){localStorage.setItem(STORE,JSON.stringify(list))}
+function pick(arr,seed=0){return arr[Math.abs(seed)%arr.length]}
+function hash(s){let h=0;for(let i=0;i<s.length;i++)h=(h*31+s.charCodeAt(i))|0;return Math.abs(h)}
+function has(s,words){return words.some(w=>s.includes(w))}
+function makeCharacter(){
+ const idea=$('idea').value.trim();if(!idea){$('status').textContent='役柄・概要を入力してください。';return}
+ const seed=hash(idea),detail=+$('depth').value,style=$('style').value;
+ const female=has(idea,['女性','女の子','少女','女子','彼女']),male=has(idea,['男性','男の子','少年','男子','彼氏']);
+ const name=$('name').value.trim()||pick(['アリア','ユナ','レオン','ミナ','カイ','セラ','ノア','リオ'],seed);
+ const isShy=has(idea,['内気','人見知り','恥ずかしがり','照れ屋']),isCool=has(idea,['冷静','クール','無口','冷たい']),isKind=has(idea,['優しい','温厚','思いやり']),isJealous=has(idea,['嫉妬','独占欲','束縛']);
+ const tone=$('speech').value.trim()|| (isCool?'短く落ち着いた口調':isShy?'控えめで少し遠慮がちな口調':female?'柔らかく自然な口調': '落ち着いた自然な口調');
+ const world=$('world').value==='入力内容から自動判断'?(has(idea,['魔法','剣','竜','王国'])?'ファンタジー':has(idea,['宇宙','ロボット','未来','AI'])?'SF・近未来':'現代・現実世界'):$('world').value;
+ const relation=$('relation').value.trim()||'初対面（会話を通じて関係を形成）';
+ const traits=[isKind?'思いやりがあり、相手の様子をよく見る':pick(['好奇心旺盛で行動的','慎重で観察力がある','責任感が強く誠実','自由を好み柔軟','自分の信念を大切にする'],seed),isCool?'感情を表に出しにくい':isShy?'慣れるまで控えめ':isJealous?'大切な相手への思いが強く、嫉妬を感じやすい':pick(['親しみやすく率直','落ち着いていて理性的','負けず嫌いで努力家','感受性が豊か'],seed+2)];
+ const c={id:crypto.randomUUID?crypto.randomUUID():String(Date.now()),createdAt:new Date().toISOString(),source:idea,detailLevel:detail,style,
+ basic:{name,age:$('age').value.trim()||'未設定（必要に応じて設定）',gender:$('gender').value.trim()||(female?'女性':male?'男性':'未設定'),species:has(idea,['人形','マネキン'])?'人形':has(idea,['エルフ'])?'エルフ':'人間（仮設定）',occupation:pick(['指定なし・会話から補完','専門家・研究者','学生','自由業・冒険者'],seed),world,location:world==='現代・現実世界'?'現代の一般的な生活圏':'世界観に合う地域（詳細未設定）',firstImpression:traits.join('。')+'。'},
+ appearance:{face:'設定なし。役柄・世界観に合う自然な外見。',hair:pick(['黒髪の整った髪型','柔らかな茶髪','落ち着いた暗色の髪','個性を表す特徴的な髪色'],seed),eyes:pick(['落ち着いた茶色の瞳','意志の強さを感じる瞳','柔らかな印象の瞳'],seed+1),build:'年齢・種族・役柄に矛盾しない自然な体格。',clothing:'職業・世界観・性格に合った実用的な服装。',accessories:'必要に応じて役柄を象徴する小物を持つ。',expressions:'感情に応じて表情が自然に変化する。',atmosphere:'第一印象と内面に一貫性のある雰囲気。'},
+ personality:{traits:traits.join('。')+'。',strengths:'状況を観察し、必要なときに自分なりの判断を下せる。',weaknesses:isShy?'初対面では自分の考えを伝えるのに時間がかかる。':isCool?'感情を表に出さず、誤解されることがある。':'自分の考えに集中すると、周囲への配慮が遅れることがある。',sociality:isShy?'少人数や親しい相手との交流を好む。':'相手や状況に応じて交流の距離感を調整する。',pride:'自分なりの信念を持ち、必要以上に誇示しない。',kindness:isKind?'相手の立場を考えて行動する。':'相手との関係や状況に応じて態度を変える。',honesty:'基本的には率直。ただし言いにくいことは慎重に伝える。',likes:'自分の関心分野、落ち着ける時間、信頼できる相手。',dislikes:'価値観を一方的に押し付けられること。'},
+ psychology:{thinking:'情報を集め、状況と相手の意図を考えてから判断する。',values:'信頼・自分の信念・相手への敬意を大切にする。',judgment:'状況、相手への影響、自分の価値観を総合して判断する。',desires:'自分の目標を達成し、納得できる関係や環境を築く。',fears:'大切なものを失うことや、自分の判断が誰かを傷つけること。',complexes:'自分の不得意な部分を気にすることがある。',secrets:'本人が明かすまでは、重要な秘密を勝手に確定しない。',motivation:'本人が大切にしている価値観と目標に沿って行動する。'},
+ emotion:{joy:'表情や声が明るくなり、言葉数が増える。',anger:'不快の原因を示し、性格に合った方法で意思表示する。',sadness:'口数が減る、または信頼できる相手に気持ちを打ち明ける。',fear:'警戒し、状況を確認して安全な行動を選ぶ。',jealousy:isJealous?'大切な相手への関心が強く、寂しさや不安として表れる。':'設定に応じて自然に表現し、必要以上に誇張しない。',affection:'言葉や行動で、相手との関係に合った親しさを示す。',change:'出来事の積み重ねに応じて段階的に変化する。',stress:'一度立ち止まり、距離を取る・相談するなどの対処をする。'},
+ speech:{firstPerson:pick(['私','僕','俺','わたくし'],seed),secondPerson:pick(['あなた','君','相手の名前','あなた／名前を使い分ける'],seed+1),tone,vocabulary:'役柄・職業・世界観に合った語彙を使う。',pace:'場面に応じてテンポを調整し、重要な場面では間を置く。',catchphrase:'無理に口癖を付けず、会話の中で自然に定着させる。',humor:'性格と相手との距離感に合わせて冗談や皮肉を使う。',silence:'迷い、驚き、気まずさなどを表すときに自然な間を使う。'},
+ relationships:{userRelation:relation,family:'未設定。必要になった場合に世界観と矛盾しない範囲で補完。',friends:'信頼関係は会話や出来事を通じて形成する。',romance:'ユーザー指定がある場合のみ関係性を設定する。',rivals:'対立する相手が指定された場合、理由と関係の経緯を設定する。',trust:'言動の一貫性や約束の積み重ねによって形成する。',socialBehavior:'相手との関係・状況・過去の出来事に応じて態度を変える。'},
+ background:{origin:'現在の人格につながる生い立ち。詳細は指定がないため仮設定。',familyHistory:'未設定。必要に応じて追加する。',education:'職業・世界観に合わせて補完する。',pastEvents:'人格形成に影響した出来事を、設定と矛盾しない範囲で追加する。',successes:'努力や得意分野を通じた達成経験。',failures:'失敗から学び、現在の判断に影響した経験。',currentGoal:'自分の価値観に沿った目標を持ち、会話に応じて具体化する。'},
+ behavior:{habits:'日常の中に小さな習慣を持つ。',hobbies:'関心分野や職業に関連する活動。',skills:'役柄・職業・世界観に合った能力。',weakSkills:'性格や経験に由来する不得意分野。',whenHappy:'表情や声が明るくなり、自然に喜びを示す。',whenAngry:'原因と相手に応じて、冷静または感情的に反応する。',whenSad:'一人で整理するか、信頼する相手に話す。',emergency:'まず状況を把握し、優先順位を決めて行動する。'},
+ roleplay:{viewpoint:'キャラクター本人の視点・価値観・知識範囲を維持する。',description:'必要に応じて動作・表情・視線・仕草を具体的に描写する。',innerVoice:'心理的な転換点や重要な場面でのみ使用する。',format:'会話・小説・脚本を場面に合わせて選択する。',initiative:'キャラクターからも自然に質問や話題を提示する。',storyPace:'ユーザーの反応と場面に合わせて進行する。',continuity:'確定設定・過去の出来事・感情の変化を矛盾なく保つ。',boundaries:'年齢・同意・安全性に配慮し、非露骨な表現を基本とする。'}
+ };
+ // Apply explicit inputs and retain original request.
+ c.basic.name=name;c.basic.age=$('age').value.trim()||c.basic.age;c.basic.gender=$('gender').value.trim()||c.basic.gender;
+ c.basic.world=world;c.relationships.userRelation=relation;c.speech.tone=tone;
+ const extra=$('extra').value.trim();if(extra)c.extraRequirements=extra;
+ if(detail<=2){c.background.pastEvents='詳細度を抑え、過去の出来事は必要になるまで確定しない。';c.appearance.accessories='未設定';}
+ if(style==='realistic')c.roleplay.storyPace='現実的な因果関係を重視し、急展開を避ける。';
+ if(style==='dramatic')c.roleplay.storyPace='感情や出来事の起伏を丁寧に描き、物語性を高める。';
+ if(style==='fantasy')c.roleplay.storyPace='独創的な設定や意外性を活用するが、世界観の一貫性を守る。';
+ return c;
+}
+function saveCurrent(){if(!current)return;const list=readStore();const i=list.findIndex(x=>x.id===current.id);if(i>=0)list[i]=current;else list.unshift(current);writeStore(list);renderSaved();$('status').textContent='端末内に保存しました。'}
+function render(){if(!current){$('empty').classList.remove('hidden');$('editor').classList.add('hidden');return}
+ $('empty').classList.add('hidden');$('editor').classList.remove('hidden');$('profileName').textContent=current.basic.name;$('profileMeta').textContent=[current.basic.age,current.basic.gender,current.basic.world].filter(Boolean).join(' ・ ');
+ $('tabs').innerHTML=Object.entries(tabs).map(([k,v])=>`<button class="tab ${activeTab===k?'active':''}" data-tab="${k}">${v}</button>`).join('');
+ $('tabs').querySelectorAll('button').forEach(b=>b.onclick=()=>{activeTab=b.dataset.tab;render()});
+ const data=current[activeTab]||{};$('details').innerHTML=fields[activeTab].map(([key,label])=>`<div class="detail ${['traits','thinking','values','userRelation','origin','viewpoint','description','boundaries'].includes(key)?'full':''}"><small>${label}</small><textarea data-key="${key}">${escapeHtml(data[key]??'')}</textarea></div>`).join('');
+ $('details').querySelectorAll('textarea').forEach(t=>t.addEventListener('change',()=>{current[activeTab][t.dataset.key]=t.value}));
+ renderSaved();
+}
+function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function renderSaved(){const list=readStore();$('savedCount').textContent=list.length+'件';$('savedList').innerHTML=list.length?list.map(c=>`<div class="saved-item"><div><strong>${escapeHtml(c.basic?.name||'名称未設定')}</strong><small>${escapeHtml(c.basic?.world||'')} ・ ${new Date(c.createdAt).toLocaleDateString('ja-JP')}</small></div><div style="display:flex;gap:5px"><button data-open="${c.id}">開く</button><button class="danger" data-del="${c.id}">削除</button></div></div>`).join(''):'<div class="notice">保存済みキャラクターはありません。</div>';
+ $('savedList').querySelectorAll('[data-open]').forEach(b=>b.onclick=()=>{current=readStore().find(x=>x.id===b.dataset.open);activeTab='basic';render()});
+ $('savedList').querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>{if(confirm('このキャラクターを削除しますか？')){writeStore(readStore().filter(x=>x.id!==b.dataset.del));if(current?.id===b.dataset.del)current=null;render()}});
+}
+function download(name,text,type='application/json'){const blob=new Blob([text],{type});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=name;a.click();URL.revokeObjectURL(url)}
+function exportOne(){if(!current)return;download(`${safeName(current.basic.name)}.json`,JSON.stringify(current,null,2))}
+function safeName(s){return String(s||'character').replace(/[\\/:*?"<>|]/g,'_').slice(0,50)}
+function toMarkdown(c){let out=`# ${c.basic.name}\n\n> ${c.basic.age} / ${c.basic.gender} / ${c.basic.world}\n\n元の概要：${c.source}\n`;for(const [tab,title] of Object.entries(tabs)){out+=`\n## ${title}\n`;for(const [k,label] of fields[tab])out+=`\n### ${label}\n${c[tab]?.[k]||'未設定'}\n`}if(c.extraRequirements)out+=`\n## 追加条件\n${c.extraRequirements}\n`;return out}
+$('generateBtn').onclick=()=>{current=makeCharacter();activeTab='basic';render();$('status').textContent='キャラクター設定を生成しました。必要に応じて編集して保存してください。'};
+$('saveBtn').onclick=saveCurrent;$('exportBtn').onclick=exportOne;
+$('markdownBtn').onclick=()=>{if(current)download(`${safeName(current.basic.name)}.md`,toMarkdown(current),'text/markdown;charset=utf-8')};
+$('exportAllBtn').onclick=()=>download('character-forge-library.json',JSON.stringify(readStore(),null,2));
+$('importBtn').onclick=()=>$('importFile').click();
+$('importFile').onchange=async e=>{const f=e.target.files[0];if(!f)return;try{const data=JSON.parse(await f.text());const items=Array.isArray(data)?data:[data];if(!items.every(x=>x&&x.basic&&x.id))throw Error('形式が違います');const list=readStore();for(const c of items){const i=list.findIndex(x=>x.id===c.id);if(i>=0)list[i]=c;else list.unshift(c)}writeStore(list);current=items[0];render();$('status').textContent=`${items.length}件を読み込みました。`}catch(err){alert('JSONを読み込めませんでした。Character Forge形式のJSONを選んでください。')}e.target.value=''};
+$('newBtn').onclick=()=>{current=null;render();$('idea').focus()};
+$('clearBtn').onclick=()=>{['idea','name','age','gender','relation','speech','extra'].forEach(id=>$(id).value='');$('world').selectedIndex=0;$('status').textContent='入力をクリアしました。'};
+$('depth').oninput=e=>$('depthOut').textContent=e.target.value;
+renderSaved();
+</script>
+</body>
+</html>
